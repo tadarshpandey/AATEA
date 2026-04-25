@@ -52,27 +52,31 @@ class ExecuteRequest(BaseModel):
 
 @app.post("/api/task/plan")
 async def plan_task(request: TaskRequest):
-    # 1. Parse Intent
-    intent = parse_intent(request.intent)
-    if not intent.is_valid:
-        return {"status": "error", "message": "Invalid intent", "clarification": intent.clarifying_question}
-    
-    # 2. Plan
-    available_tools = registry.list_tools()
-    plan = generate_plan(intent.primary_goal, available_tools)
-    
-    return {"status": "success", "intent": intent.primary_goal, "plan": plan.model_dump()}
+    try:
+        # 1. Parse Intent
+        intent = parse_intent(request.intent)
+        if not intent.is_valid:
+            return {"status": "error", "message": "Invalid intent", "clarification": intent.clarifying_question}
+        
+        # 2. Plan
+        available_tools = registry.list_tools()
+        plan = generate_plan(intent.primary_goal, available_tools)
+        
+        return {"status": "success", "intent": intent.primary_goal, "plan": plan.model_dump()}
+    except Exception as e:
+        return {"status": "error", "message": f"Server Error: {str(e)}"}
 
 @app.post("/api/task/execute")
 async def execute_task(request: ExecuteRequest):
-    # 3. Execute an approved plan
-    plan_obj = TaskGraph.model_validate(request.plan)
-    executor = Executor(plan_obj, log_callback=broadcast_log)
     try:
+        # 3. Execute an approved plan
+        plan_obj = TaskGraph.model_validate(request.plan)
+        executor = Executor(plan_obj, log_callback=broadcast_log)
+        
         results = await executor.execute()
         return {"status": "success", "results": results}
     except Exception as e:
-        return {"status": "failed", "error": str(e)}
+        return {"status": "error", "error": f"Server Error: {str(e)}"}
 
 @app.websocket("/ws/logs")
 async def websocket_endpoint(websocket: WebSocket):
