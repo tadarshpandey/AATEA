@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+websockets
+pydantic
+google-genai
+python-dotenv
+networkx
+tenacity
+httpx
