@@ -18,6 +18,7 @@ class TaskRequest(BaseModel):
     intent: str
 
 @app.get("/")
+@app.head("/")
 def read_root():
     return {"message": "AATEA Backend is running"}
 
