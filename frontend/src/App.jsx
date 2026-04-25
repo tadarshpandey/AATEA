@@ -16,17 +16,9 @@ function App() {
     }
   }, [])
 
-  // Use deployed URL or local dev URL
+  // STRICT URL ROUTING: Completely ignore environment variables because Vercel is injecting bad values.
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  let envApiUrl = import.meta.env.VITE_API_URL;
-  
-  // Failsafe: If deployed to Vercel but VITE_API_URL was accidentally set to localhost, ignore it
-  if (!isLocal && envApiUrl && envApiUrl.includes('localhost')) {
-      envApiUrl = null;
-  }
-  
-  const defaultApiUrl = isLocal ? 'http://localhost:8000' : 'https://aatea.onrender.com';
-  const API_BASE_URL = envApiUrl || defaultApiUrl;
+  const API_BASE_URL = isLocal ? 'http://localhost:8000' : 'https://aatea.onrender.com';
   
   // Convert http:// or https:// to ws:// or wss://
   const WS_BASE_URL = API_BASE_URL.replace(/^http/, 'ws');
