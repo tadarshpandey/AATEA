@@ -22,7 +22,7 @@ async def send_slack_message(params: Dict[str, Any]) -> str:
         # Simulate success for testing if no real webhook is provided
         return f"[Simulated Slack Send] Message: {message[:50]}..."
         
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         print(f"[DEBUG] Sending to Slack Webhook URL: {webhook_url}")
         print(f"[DEBUG] Message payload: {message[:100]}")
         response = await client.post(webhook_url, json={"text": message})
