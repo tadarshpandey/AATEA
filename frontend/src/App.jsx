@@ -16,6 +16,12 @@ function App() {
     }
   }, [])
 
+  // Use deployed URL or local dev URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://aatea.onrender.com';
+  
+  // Convert http:// or https:// to ws:// or wss://
+  const WS_BASE_URL = API_BASE_URL.replace(/^http/, 'ws');
+
   const handlePlan = async (e) => {
     e.preventDefault()
     if (!task.trim()) return
@@ -27,7 +33,7 @@ function App() {
     setFinalResult(null)
     
     try {
-      const response = await fetch('http://localhost:8000/api/task/plan', {
+      const response = await fetch(`${API_BASE_URL}/api/task/plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ intent: task }),
@@ -53,7 +59,7 @@ function App() {
     setLiveLogs([])
     
     // Connect to WebSocket for live logs
-    ws.current = new WebSocket('ws://localhost:8000/ws/logs')
+    ws.current = new WebSocket(`${WS_BASE_URL}/ws/logs`)
     ws.current.onmessage = (event) => {
       try {
         const logData = JSON.parse(event.data)
@@ -62,7 +68,7 @@ function App() {
     }
     
     try {
-      const response = await fetch('http://localhost:8000/api/task/execute', {
+      const response = await fetch(`${API_BASE_URL}/api/task/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ intent: task, plan: plan }),
